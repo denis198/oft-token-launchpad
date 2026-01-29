@@ -1,0 +1,27 @@
+{
+  "name": "oft-token-launchpad",
+  "version": "1.0.0",
+  "description": "Cross-chain OFT Token Launchpad powered by LayerZero",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "frontend"
+  ],
+  "scripts": {
+    "compile": "npm run compile --workspace=contracts",
+    "test": "npm run test --workspace=contracts",
+    "deploy:sepolia": "npm run deploy:sepolia --workspace=contracts",
+    "deploy:mumbai": "npm run deploy:mumbai --workspace=contracts",
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend"
+  },
+  "keywords": [
+    "layerzero",
+    "oft",
+    "omnichain",
+    "cross-chain",
+    "token-launchpad"
+  ],
+  "author": "",
+  "license": "MIT"
+}
