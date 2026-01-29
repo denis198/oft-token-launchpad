@@ -3,7 +3,7 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt, useChainId,
 import { parseEther, formatEther, pad } from 'viem'
 import toast from 'react-hot-toast'
 import { OFT_ABI } from '../config/contracts'
-import { LZ_EID, CHAIN_NAMES } from '../config/wagmi'
+import { CHAIN_NAMES } from '../config/wagmi'
 
 const SUPPORTED_CHAINS = [
   { id: 11155111, name: 'Sepolia', eid: 40161 },

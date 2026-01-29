@@ -4,15 +4,6 @@ import { formatEther } from 'viem'
 import { FACTORY_ABI, OFT_ABI } from '../config/contracts'
 import { FACTORY_ADDRESSES, CHAIN_NAMES, EXPLORER_URLS } from '../config/wagmi'
 
-interface TokenInfo {
-  tokenAddress: string
-  name: string
-  symbol: string
-  initialSupply: bigint
-  creator: string
-  createdAt: bigint
-}
-
 export default function MyTokens() {
   const { address } = useAccount()
   const chainId = useChainId()
