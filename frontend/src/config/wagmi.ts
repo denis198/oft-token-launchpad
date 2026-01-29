@@ -9,7 +9,7 @@ import {
 
 export const config = getDefaultConfig({
   appName: 'OFT Token Launchpad',
-  projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // Get from https://cloud.walletconnect.com
+  projectId: 'e68684b701ce6e8f5cde4fecd92239c8',
   chains: [sepolia, arbitrumSepolia, optimismSepolia, baseSepolia, polygonMumbai],
   ssr: false,
 })
@@ -43,7 +43,7 @@ export const EXPLORER_URLS: Record<number, string> = {
 
 // Factory addresses (update after deployment)
 export const FACTORY_ADDRESSES: Record<number, string> = {
-  11155111: '', // Sepolia - fill after deployment
+  11155111: '0xfE955CC21241aB7bdE6B3406794F481646048CC0', // Sepolia
   80001: '',    // Mumbai
   421614: '',   // Arbitrum Sepolia
   11155420: '', // Optimism Sepolia
