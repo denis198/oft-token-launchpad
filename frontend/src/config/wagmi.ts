@@ -45,7 +45,7 @@ export const EXPLORER_URLS: Record<number, string> = {
 export const FACTORY_ADDRESSES: Record<number, string> = {
   11155111: '0xfE955CC21241aB7bdE6B3406794F481646048CC0', // Sepolia
   80001: '',    // Mumbai
-  421614: '',   // Arbitrum Sepolia
+  421614: '0xfE955CC21241aB7bdE6B3406794F481646048CC0',   // Arbitrum Sepolia
   11155420: '', // Optimism Sepolia
   84532: '',    // Base Sepolia
 }

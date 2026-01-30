@@ -1,38 +1,33 @@
-# Building an OFT Token Launchpad with LayerZero V2: A Complete Developer Guide
+Building an OFT Token Launchpad with LayerZero V2: A Complete Developer Guide
 
-*How I built a no-code cross-chain token launchpad using LayerZero's OFT standard — from smart contracts to a live frontend.*
+Story of how I built a no-code cross-chain token launchpad using LayerZero's OFT standard — from smart contracts to a live frontend.
 
----
 
-## Introduction
+Introduction
 
 Cross-chain tokens are the future of DeFi, but deploying them is still painful. You need deep Solidity knowledge, manual contract configuration for each chain, and complex peer setup. I wanted to change that.
 
-I built **OFT Token Launchpad** — a web application that lets anyone create a cross-chain token with a single click, then bridge it to any supported network through LayerZero V2.
+I built OFT Token Launchpad — a web application that lets anyone create a cross-chain token with a single click, then bridge it to any supported network through LayerZero V2.
 
-**Live demo:** [https://frontend-pi-henna-62.vercel.app](https://frontend-pi-henna-62.vercel.app)
-**Source code:** [https://github.com/denis198/oft-token-launchpad](https://github.com/denis198/oft-token-launchpad)
+Live demo: https://frontend-pi-henna-62.vercel.app 
+Code:** https://github.com/denis198/oft-token-launchpad 
 
----
 
-## Why LayerZero OFT?
+Why LayerZero OFT?
 
-LayerZero's **Omnichain Fungible Token (OFT)** standard solves a fundamental problem: how do you create a token that natively exists on multiple blockchains without wrappers or bridges?
+LayerZero's Omnichain Fungible Token (OFT) standard solves a fundamental problem: how do you create a token that natively exists on multiple blockchains without wrappers or bridges?
 
 Traditional bridged tokens use lock-and-mint mechanisms, creating wrapped versions (like WETH) that fragment liquidity. OFT tokens are different — they use LayerZero messaging to burn tokens on the source chain and mint on the destination chain. The token is native everywhere.
 
 This makes OFT perfect for:
-- **Community tokens** that need to exist on multiple chains
-- **Governance tokens** for cross-chain DAOs
-- **Utility tokens** for multi-chain protocols
+Community tokens that need to exist on multiple chains
+Governance tokensmfor cross-chain DAOs
+Utility tokens for multi-chain protocols
 
----
-
-## Architecture Overview
+Architecture Overview
 
 The project has three layers:
 
-```
 ┌─────────────────────────────────────────┐
 │           Frontend (React)              │
 │    RainbowKit + Wagmi + TailwindCSS     │
@@ -43,31 +38,30 @@ The project has three layers:
 │       LayerZero V2 Protocol             │
 │    Endpoint V2 → Cross-chain Messaging  │
 └─────────────────────────────────────────┘
-```
 
-### Smart Contracts
+Smart Contracts
 
-**OFTFactory.sol** — The factory contract that handles all token deployments:
+OFTFactory.sol - The factory contract that handles all token deployments:
 
-```solidity
+solidity
 function createToken(
     string memory _name,
     string memory _symbol,
     uint256 _initialSupply
 ) external returns (address)
-```
+
 
 Every token created through the factory is automatically tracked on-chain. The factory stores:
-- Token address
-- Creator address
-- Name, symbol, initial supply
-- Creation timestamp
+Token address
+Creator address
+Name, symbol, initial supply
+Creation timestamp
 
 It also supports pagination for listing all deployed tokens and filtering by creator — essential for the frontend dashboard.
 
-**LaunchpadOFT.sol** — Each token inherits from LayerZero's OFT contract:
+LaunchpadOFT.sol — Each token inherits from LayerZero's OFT contract:
 
-```solidity
+solidity
 contract LaunchpadOFT is OFT {
     uint256 public immutable initialSupply;
     uint256 public immutable createdAt;
@@ -89,52 +83,48 @@ contract LaunchpadOFT is OFT {
         }
     }
 }
-```
+
 
 Key design decisions:
 - Metadata is stored as `immutable` — gas efficient and permanently on-chain
 - The creator receives the initial supply, not the factory
 - Zero initial supply is supported for chains where tokens should only arrive via bridge
 
----
 
-## How Cross-Chain Bridging Works
+How Cross-Chain Bridging Works
 
 This is where LayerZero shines. Here's the flow when a user bridges tokens:
 
-1. **User initiates bridge** on the frontend → calls `OFT.send()` on the source chain
-2. **Tokens are burned** on the source chain
-3. **LayerZero Endpoint** picks up the message and routes it through DVNs (Decentralized Verifier Networks)
-4. **Message arrives** at the destination chain's Endpoint
-5. **Tokens are minted** to the recipient on the destination chain
+1. User initiates bridge on the frontend → calls `OFT.send()` on the source chain
+2. Tokens are burned on the source chain
+3. LayerZero Endpoint picks up the message and routes it through DVNs (Decentralized Verifier Networks)
+4. Message arrives at the destination chain's Endpoint
+5. Tokens are minted to the recipient on the destination chain
 
 Before sending, the UI calls `quoteSend()` to get the exact native fee, so users know exactly what they'll pay.
 
-For bridging to work, tokens on different chains need to be **peered** — this is a one-time setup where each token contract stores the address of its counterpart on other chains:
+For bridging to work, tokens on different chains need to be peered — this is a one-time setup where each token contract stores the address of its counterpart on other chains:
 
-```bash
-# On Sepolia: point to Arbitrum Sepolia counterpart
+bash
+On Sepolia: point to Arbitrum Sepolia counterpart
 token.setPeer(arbSepoliaEid, bytes32(arbTokenAddress))
 
-# On Arbitrum Sepolia: point to Sepolia counterpart
+On Arbitrum Sepolia: point to Sepolia counterpart
 token.setPeer(sepoliaEid, bytes32(sepoliaTokenAddress))
-```
 
----
-
-## Frontend: Making It User-Friendly
+Frontend: Making It User-Friendly
 
 The frontend is built with React, Vite, and TailwindCSS. Wallet connection is handled by RainbowKit, which provides a clean multi-wallet UI out of the box.
 
-### Three Main Views
+Three Main Views
 
-**1. Create Token**
+1. Create Token
 
 A simple form: enter name, symbol, and initial supply. One click deploys the token through the factory. The UI shows wallet confirmation state and links to the block explorer on success.
 
 [INSERT SCREENSHOT: Create Token form]
 
-**2. Bridge Tokens**
+2. Bridge Tokens
 
 Select your token, choose a destination chain, enter an amount. The UI automatically quotes the LayerZero fee and handles the `send()` call. After submission, users get a link to track the transfer on LayerZero Scan.
 
