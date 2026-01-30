@@ -45,8 +45,21 @@ export default function BridgeToken() {
     }
   })
 
-  // Quote send fee
-  const { data: quoteFee } = useReadContract({
+  // Check if peer is configured for destination chain
+  const { data: peerBytes } = useReadContract({
+    address: tokenAddress as `0x${string}`,
+    abi: OFT_ABI,
+    functionName: 'peers',
+    args: destChain ? [destChain.eid] : undefined,
+    query: {
+      enabled: !!tokenAddress && !!destChain,
+    }
+  })
+
+  const hasPeer = peerBytes && peerBytes !== '0x0000000000000000000000000000000000000000000000000000000000000000'
+
+  // Quote send fee (only if peer is configured)
+  const { data: quoteFee, error: quoteError } = useReadContract({
     address: tokenAddress as `0x${string}`,
     abi: OFT_ABI,
     functionName: 'quoteSend',
@@ -63,7 +76,7 @@ export default function BridgeToken() {
       false,
     ] : undefined,
     query: {
-      enabled: !!tokenAddress && !!destChain && !!amount && parseFloat(amount) > 0,
+      enabled: !!tokenAddress && !!destChain && !!amount && parseFloat(amount) > 0 && !!hasPeer,
     }
   })
 
@@ -89,8 +102,13 @@ export default function BridgeToken() {
       return
     }
 
+    if (!hasPeer) {
+      toast.error(`No peer configured for ${destChain.name}. Deploy token on ${destChain.name} and run setPeer() first.`)
+      return
+    }
+
     if (!quoteFee) {
-      toast.error('Unable to quote fee')
+      toast.error('Unable to quote fee. Check that peers are configured correctly.')
       return
     }
 
@@ -236,6 +254,17 @@ export default function BridgeToken() {
           </select>
         </div>
 
+        {/* Peer Warning */}
+        {destChain && tokenAddress && !hasPeer && (
+          <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+            <p className="text-yellow-400 text-sm font-medium mb-1">Peer not configured</p>
+            <p className="text-gray-400 text-xs">
+              This token has no peer connection to {destChain.name}.
+              You need to deploy the token on {destChain.name} and run setPeer() on both chains before bridging.
+            </p>
+          </div>
+        )}
+
         {/* Amount */}
         <div>
           <label className="block text-sm font-medium text-gray-400 mb-2">
@@ -293,7 +322,7 @@ export default function BridgeToken() {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isPending || isConfirming || !tokenAddress || !destChainId || !amount}
+          disabled={isPending || isConfirming || !tokenAddress || !destChainId || !amount || !hasPeer}
           className="w-full py-4 rounded-lg bg-gradient-to-r from-purple-500 to-cyan-500 font-bold text-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending || isConfirming ? (
